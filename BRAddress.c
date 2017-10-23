@@ -248,7 +248,9 @@ size_t BRAddressFromScriptPubKey(char *addr, size_t addrLen, const uint8_t *scri
 #if BITCOIN_TESTNET
     data[0] = BITCOIN_PUBKEY_ADDRESS_TEST;
 #elif BITCOIN_REGTEST
-        data[0] = BITCOIN_SCRIPT_ADDRESS_REGTEST;
+    data[0] = BITCOIN_SCRIPT_ADDRESS_REGTEST;
+#elif BITCOIN_VTKNTEST
+    data[0] = BITCOIN_SCRIPT_ADDRESS_VTKNTEST;
 #endif
     
     if (count == 5 && *elems[0] == OP_DUP && *elems[1] == OP_HASH160 && *elems[2] == 20 &&
@@ -265,6 +267,8 @@ size_t BRAddressFromScriptPubKey(char *addr, size_t addrLen, const uint8_t *scri
         data[0] = BITCOIN_SCRIPT_ADDRESS_TEST;
 #elif BITCOIN_REGTEST
         data[0] = BITCOIN_SCRIPT_ADDRESS_REGTEST;
+#elif BITCOIN_VTKNTEST
+        data[0] = BITCOIN_SCRIPT_ADDRESS_VTKNTEST;
 #endif
         d = BRScriptData(elems[1], &l);
         if (l != 20) d = NULL;
@@ -296,6 +300,8 @@ size_t BRAddressFromScriptSig(char *addr, size_t addrLen, const uint8_t *script,
     data[0] = BITCOIN_PUBKEY_ADDRESS_TEST;
 #elif BITCOIN_REGTEST
     data[0] = BITCOIN_PUBKEY_ADDRESS_REGTEST;
+#elif BITCOIN_VTKNTEST
+    data[0] = BITCOIN_PUBKEY_ADDRESS_VTKNTEST;
 #endif
     
     if (count >= 2 && *elems[count - 2] <= OP_PUSHDATA4 &&
@@ -311,6 +317,8 @@ size_t BRAddressFromScriptSig(char *addr, size_t addrLen, const uint8_t *script,
         data[0] = BITCOIN_SCRIPT_ADDRESS_TEST;
 #elif BITCOIN_REGTEST
         data[0] = BITCOIN_SCRIPT_ADDRESS_REGTEST;
+#elif BITCOIN_VTKNTEST
+        data[0] = BITCOIN_SCRIPT_ADDRESS_VTKNTEST;
 #endif
         d = BRScriptData(elems[count - 1], &l);
         if (d) BRHash160(&data[1], d, l);
@@ -338,6 +346,9 @@ size_t BRAddressScriptPubKey(uint8_t *script, size_t scriptLen, const char *addr
 #elif BITCOIN_REGTEST
     pubkeyAddress = BITCOIN_PUBKEY_ADDRESS_REGTEST;
     scriptAddress = BITCOIN_SCRIPT_ADDRESS_REGTEST;
+#elif BITCOIN_VTKNTEST
+    pubkeyAddress = BITCOIN_PUBKEY_ADDRESS_VTKNTEST;
+    scriptAddress = BITCOIN_SCRIPT_ADDRESS_VTKNTEST;
 #endif
     
     if (BRBase58CheckDecode(data, sizeof(data), addr) == 21) {
@@ -383,6 +394,8 @@ int BRAddressIsValid(const char *addr)
         r = (data[0] == BITCOIN_PUBKEY_ADDRESS_TEST || data[0] == BITCOIN_SCRIPT_ADDRESS_TEST);
 #elif BITCOIN_REGTEST
         r = (data[0] == BITCOIN_PUBKEY_ADDRESS_REGTEST || data[0] == BITCOIN_SCRIPT_ADDRESS_REGTEST);
+#elif BITCOIN_VTKNTEST
+        r = (data[0] == BITCOIN_PUBKEY_ADDRESS_VTKNTEST || data[0] == BITCOIN_SCRIPT_ADDRESS_VTKNTEST);
 #endif
     }
     

@@ -83,6 +83,17 @@ static const char *dns_seeds[] = {
             "relay5.eternitywall.com",
     };
 
+#elif BITCOIN_VTKNTEST
+
+static const struct { uint32_t height; const char *hash; uint32_t timestamp; uint32_t target; } checkpoint_array[] = {
+    {      0, "aea71fb4640317ffd6a442764784ba4b94cea7eb48ba5285a85e2dca49a0a483", 1504224000L, 0x207fffff }
+    };
+
+static const char *dns_seeds[] = {
+    	    "test.signer1.eternitywall.com",
+    	    "test.signer2.eternitywall.com"
+    };
+
 #else // main net
 
 // blockchain checkpoints - these are also used as starting points for partial chain downloads, so they need to be at

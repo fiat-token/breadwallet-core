@@ -36,6 +36,9 @@
 #elif BITCOIN_REGTEST
 #define BIP32_XPRV     "\x04\x35\x83\x94"
 #define BIP32_XPUB     "\x04\x35\x87\xCF"
+#elif BITCOIN_VTKNTEST
+#define BIP32_XPRV     "\x04\x35\x83\x94"
+#define BIP32_XPUB     "\x04\x35\x87\xCF"
 #else
 #define BIP32_XPRV     "\x04\x88\xAD\xE4"
 #define BIP32_XPUB     "\x04\x88\xB2\x1E"
