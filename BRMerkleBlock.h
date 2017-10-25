@@ -36,7 +36,7 @@ extern "C" {
 #define BLOCK_DIFFICULTY_INTERVAL 2016 // number of blocks between difficulty target adjustments
 #define BLOCK_UNKNOWN_HEIGHT      INT32_MAX
 #define BLOCK_MAX_TIME_DRIFT      (2*60*60) // the furthest in the future a block is allowed to be timestamped
-
+    
 typedef struct {
     UInt256 blockHash;
     uint32_t version;
@@ -51,6 +51,12 @@ typedef struct {
     uint8_t *flags;
     size_t flagsLen;
     uint32_t height;
+    
+    size_t challengeLen;
+    uint8_t *challenge;
+    size_t signatureLen;
+    uint8_t *signature;
+    
 } BRMerkleBlock;
 
 #define BR_MERKLE_BLOCK_NONE\
@@ -58,6 +64,9 @@ typedef struct {
 
 // returns a newly allocated merkle block struct that must be freed by calling BRMerkleBlockFree()
 BRMerkleBlock *BRMerkleBlockNew(void);
+    
+// returns a merkle block size that must be used to alloc BRMerkleBlock
+size_t BRMerkleBlockParseLenght(const uint8_t *buf, const size_t bufLen);
 
 // buf must contain either a serialized merkleblock or header
 // returns a merkle block struct that must be freed by calling BRMerkleBlockFree()

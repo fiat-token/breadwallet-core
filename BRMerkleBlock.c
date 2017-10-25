@@ -87,11 +87,30 @@ BRMerkleBlock *BRMerkleBlockNew(void)
     return block;
 }
 
+size_t BRMerkleBlockParseLenght(const uint8_t *buf, const size_t bufLen){
+    size_t off = 80;
+    // add height
+    off += 4;
+    // add challenge
+    if(off < bufLen){
+        size_t len = 1;
+        size_t challengeLen = BRVarInt(&buf[off], bufLen - off, &len);
+        off += len + challengeLen;
+    }
+    // add signature
+    if(off < bufLen){
+        size_t len = 1;
+        size_t signatureLen = BRVarInt(&buf[off], bufLen - off, &len);
+        off += len + signatureLen;
+    }
+    return off;
+}
+
 // buf must contain either a serialized merkleblock or header
 // returns a merkle block struct that must be freed by calling BRMerkleBlockFree()
 BRMerkleBlock *BRMerkleBlockParse(const uint8_t *buf, size_t bufLen)
 {
-    BRMerkleBlock *block = (buf && 80 <= bufLen) ? BRMerkleBlockNew() : NULL;
+    BRMerkleBlock *block = (buf && BRMerkleBlockParseLenght(buf, bufLen) <= bufLen) ? BRMerkleBlockNew() : NULL;
     size_t off = 0, len = 0;
     
     assert(buf != NULL || bufLen == 0);
@@ -110,6 +129,22 @@ BRMerkleBlock *BRMerkleBlockParse(const uint8_t *buf, size_t bufLen)
         block->nonce = UInt32GetLE(&buf[off]);
         off += sizeof(uint32_t);
         
+        // signedblock: parse height
+        block->height = UInt32GetLE(&buf[off]);
+        off += sizeof(uint32_t);
+        // signedblock: parse challenge
+        block->challengeLen = (size_t)BRVarInt(&buf[off],(off <= bufLen ? bufLen - off : 0), &len);
+        off += len;
+        block->challenge = (uint8_t *) malloc(block->challengeLen * sizeof(uint8_t));
+        memcpy(block->challenge, &buf[off], block->challengeLen);
+        off += block->challengeLen;
+        // signedblock: parse signature
+        block->signatureLen = (size_t)BRVarInt(&buf[off],(off <= bufLen ? bufLen - off : 0), &len);
+        off += len;
+        block->signature = (uint8_t *) malloc(block->signatureLen * sizeof(uint8_t));
+        memcpy(block->signature, &buf[off], block->signatureLen);
+        off += block->signatureLen;
+        
         if (off + sizeof(uint32_t) <= bufLen) {
             block->totalTx = UInt32GetLE(&buf[off]);
             off += sizeof(uint32_t);
@@ -126,7 +161,7 @@ BRMerkleBlock *BRMerkleBlockParse(const uint8_t *buf, size_t bufLen)
             if (block->flags) memcpy(block->flags, &buf[off], len);
         }
         
-        BRSHA256_2(&block->blockHash, buf, 80);
+        BRSHA256_2(&block->blockHash, buf, BRMerkleBlockParseLenght(buf, bufLen)-block->signatureLen-1);
     }
     
     return block;
@@ -135,7 +170,7 @@ BRMerkleBlock *BRMerkleBlockParse(const uint8_t *buf, size_t bufLen)
 // returns number of bytes written to buf, or total bufLen needed if buf is NULL (block->height is not serialized)
 size_t BRMerkleBlockSerialize(const BRMerkleBlock *block, uint8_t *buf, size_t bufLen)
 {
-    size_t off = 0, len = 80;
+    size_t off = 0, len = BRMerkleBlockParseLenght(buf, bufLen);
     
     assert(block != NULL);
     
@@ -263,28 +298,32 @@ int BRMerkleBlockIsValid(const BRMerkleBlock *block, uint32_t currentTime)
     
     // target is in "compact" format, where the most significant byte is the size of resulting value in bytes, the next
     // bit is the sign, and the remaining 23bits is the value after having been right shifted by (size - 3)*8 bits
-    static const uint32_t maxsize = MAX_PROOF_OF_WORK >> 24, maxtarget = MAX_PROOF_OF_WORK & 0x00ffffff;
-    const uint32_t size = block->target >> 24, target = block->target & 0x00ffffff;
+    //static const uint32_t maxsize = MAX_PROOF_OF_WORK >> 24, maxtarget = MAX_PROOF_OF_WORK & 0x00ffffff;
+    //const uint32_t size = block->target >> 24, target = block->target & 0x00ffffff;
     size_t hashIdx = 0, flagIdx = 0;
     UInt256 merkleRoot = _BRMerkleBlockRootR(block, &hashIdx, &flagIdx, 0), t = UINT256_ZERO;
     int r = 1;
     
     // check if merkle root is correct
-    if (block->totalTx > 0 && ! UInt256Eq(merkleRoot, block->merkleRoot)) r = 0;
+    if (block->totalTx > 0 && ! UInt256Eq(merkleRoot, block->merkleRoot))
+        r = 0;
     
     // check if timestamp is too far in future
-    if (block->timestamp > currentTime + BLOCK_MAX_TIME_DRIFT) r = 0;
+    if (block->timestamp > currentTime + BLOCK_MAX_TIME_DRIFT)
+        r = 0;
     
     // check if proof-of-work target is out of range
-    if (target == 0 || target & 0x00800000 || size > maxsize || (size == maxsize && target > maxtarget)) r = 0;
+    /*if (target == 0 || target & 0x00800000 || size > maxsize || (size == maxsize && target > maxtarget))
+        r = 0;
     
     if (size > 3) UInt32SetLE(&t.u8[size - 3], target);
     else UInt32SetLE(t.u8, target >> (3 - size)*8);
     
     for (int i = sizeof(t) - 1; r && i >= 0; i--) { // check proof-of-work
         if (block->blockHash.u8[i] < t.u8[i]) break;
-        if (block->blockHash.u8[i] > t.u8[i]) r = 0;
-    }
+        if (block->blockHash.u8[i] > t.u8[i])
+            r = 0;
+    }*/
     
     return r;
 }
@@ -329,6 +368,9 @@ int BRMerkleBlockVerifyDifficulty(const BRMerkleBlock *block, const BRMerkleBloc
     // TODO: implement testnet difficulty rule check
     return r; // don't worry about difficulty on testnet for now
 #elif BITCOIN_REGTEST
+    // TODO: implement testnet difficulty rule check
+    return r; // don't worry about difficulty on testnet for now
+#elif BITCOIN_VTKNTEST
     // TODO: implement testnet difficulty rule check
     return r; // don't worry about difficulty on testnet for now
 #endif

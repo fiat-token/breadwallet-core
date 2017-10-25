@@ -48,7 +48,7 @@
 #elif BITCOIN_REGTEST
 #define MAGIC_NUMBER 0xdab5bffa
 #elif BITCOIN_VTKNTEST
-#define MAGIC_NUMBER 0x110a034e
+#define MAGIC_NUMBER 0x4e030a11
 #else
 #define MAGIC_NUMBER 0xd9b4bef9
 #endif
@@ -452,41 +452,59 @@ static int _BRPeerAcceptHeadersMessage(BRPeer *peer, const uint8_t *msg, size_t 
     size_t off = 0, count = (size_t)BRVarInt(msg, msgLen, &off);
     int r = 1;
 
-    if (off == 0 || off + 81*count > msgLen) {
-        peer_log(peer, "malformed headers message, length is %zu, should be %zu for %zu header(s)", msgLen,
-                 BRVarIntSize(count) + 81*count, count);
-        r = 0;
-    }
-    else {
+    // removed because dynamic block header size
+    //if (off == 0 || off + (BLOCK_HEADER_SIZE+1)*count > msgLen) {
+    //    peer_log(peer, "malformed headers message, length is %zu, should be %zu for %zu header(s)", msgLen,
+    //             BRVarIntSize(count) + (BLOCK_HEADER_SIZE+1)*count, count);
+    //    r = 0;
+    //}
+    //else
+    {
         peer_log(peer, "got %zu header(s)", count);
     
         // To improve chain download performance, if this message contains 2000 headers then request the next 2000
         // headers immediately, and switch to requesting blocks when we receive a header newer than earliestKeyTime
-        uint32_t timestamp = (count > 0) ? UInt32GetLE(&msg[off + 81*(count - 1) + 68]) : 0;
+    
+        size_t lenght = off;
+        size_t lastHeaderLenght = 0;
+        for (size_t i = 0; i < count ; i++){
+            lastHeaderLenght = BRMerkleBlockParseLenght(&msg[lenght], msgLen-lenght);
+            lenght += lastHeaderLenght + 1;
+        }
+    
+        uint32_t timestamp = (count > 0) ? UInt32GetLE(&msg[lenght - lastHeaderLenght - 1 + 68]) : 0;
     
         if (count >= 2000 || (timestamp > 0 && timestamp + 7*24*60*60 + BLOCK_MAX_TIME_DRIFT >= ctx->earliestKeyTime)) {
             size_t last = 0;
             time_t now = time(NULL);
             UInt256 locators[2];
             
-            BRSHA256_2(&locators[0], &msg[off + 81*(count - 1)], 80);
-            BRSHA256_2(&locators[1], &msg[off], 80);
+            size_t len = BRMerkleBlockParseLenght(&msg[lenght - lastHeaderLenght - 1], msgLen);
+            BRSHA256_2(&locators[0], &msg[lenght - lastHeaderLenght - 1], len);
+            len = BRMerkleBlockParseLenght(&msg[off], msgLen);
+            BRSHA256_2(&locators[1], &msg[off], len);
 
-            if (timestamp > 0 && timestamp + 7*24*60*60 + BLOCK_MAX_TIME_DRIFT >= ctx->earliestKeyTime) {
+            /*if (timestamp > 0 && timestamp + 7*24*60*60 + BLOCK_MAX_TIME_DRIFT >= ctx->earliestKeyTime) {
                 // request blocks for the remainder of the chain
-                timestamp = (++last < count) ? UInt32GetLE(&msg[off + 81*last + 68]) : 0;
+                timestamp = (++last < count) ? UInt32GetLE(&msg[off + (BLOCK_HEADER_SIZE+1)*last + 68]) : 0;
 
                 while (timestamp > 0 && timestamp + 7*24*60*60 + BLOCK_MAX_TIME_DRIFT < ctx->earliestKeyTime) {
-                    timestamp = (++last < count) ? UInt32GetLE(&msg[off + 81*last + 68]) : 0;
+                    timestamp = (++last < count) ? UInt32GetLE(&msg[off + (BLOCK_HEADER_SIZE+1)*last + 68]) : 0;
                 }
                 
-                BRSHA256_2(&locators[0], &msg[off + 81*(last - 1)], 80);
+                len = BRMerkleBlockParseLenght(&msg[lenght - lastLenght], msgLen);
+                BRSHA256_2(&locators[0], &msg[lenght - lastLenght], len);
                 BRPeerSendGetblocks(peer, locators, 2, UINT256_ZERO);
             }
-            else BRPeerSendGetheaders(peer, locators, 2, UINT256_ZERO);
-
+            else */
+            //BRPeerSendGetheaders(peer, locators, 2, UINT256_ZERO);
+            
+            size_t lenght = off;
             for (size_t i = 0; r && i < count; i++) {
-                BRMerkleBlock *block = BRMerkleBlockParse(&msg[off + 81*i], 81);
+                size_t len = BRMerkleBlockParseLenght(&msg[lenght], msgLen-lenght);
+                BRMerkleBlock *block = BRMerkleBlockParse(&msg[lenght], len);
+                lenght += len + 1;
+                peer_log(peer, "%"PRIu32": %s (prev: %s)", block->height, u256_hex_encode(block->blockHash), u256_hex_encode(block->prevBlock));
                 
                 if (! BRMerkleBlockIsValid(block, (uint32_t)now)) {
                     peer_log(peer, "invalid block header: %s", u256_hex_encode(block->blockHash));

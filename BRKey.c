@@ -183,7 +183,7 @@ int BRKeySetPrivKey(BRKey *key, const char *privKey)
 #elif BITCOIN_REGTEST
     version = BITCOIN_PRIVKEY_REGTEST;
 #elif BITCOIN_VTKNTEST
-    version = BITCOIN_PRIVKEY_VTKNTEST);
+    version = BITCOIN_PRIVKEY_VTKNTEST;
 #endif
 
     assert(key != NULL);

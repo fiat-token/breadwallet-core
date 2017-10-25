@@ -892,7 +892,8 @@ static void _peerConnected(void *info)
             if (manager->lastBlock->timestamp + 7*24*60*60 >= manager->earliestKeyTime) {
                 BRPeerSendGetblocks(peer, locators, count, UINT256_ZERO);
             }
-            else BRPeerSendGetheaders(peer, locators, count, UINT256_ZERO);
+            else
+                BRPeerSendGetheaders(peer, locators, count, UINT256_ZERO);
         }
         else { // we're already synced
             manager->connectFailureCount = 0; // reset connect failure count
