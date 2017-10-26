@@ -484,20 +484,33 @@ static int _BRPeerAcceptHeadersMessage(BRPeer *peer, const uint8_t *msg, size_t 
             len = BRMerkleBlockParseLenght(&msg[off], msgLen);
             BRSHA256_2(&locators[1], &msg[off], len);
 
-            /*if (timestamp > 0 && timestamp + 7*24*60*60 + BLOCK_MAX_TIME_DRIFT >= ctx->earliestKeyTime) {
+            if (timestamp > 0 && timestamp + 7*24*60*60 + BLOCK_MAX_TIME_DRIFT >= ctx->earliestKeyTime) {
                 // request blocks for the remainder of the chain
-                timestamp = (++last < count) ? UInt32GetLE(&msg[off + (BLOCK_HEADER_SIZE+1)*last + 68]) : 0;
+                
+                timestamp = 0;
+                size_t offset = off;
+                lastHeaderLenght = 0;
+                if (++last < count){
+                    lastHeaderLenght = BRMerkleBlockParseLenght(&msg[offset], msgLen);
+                    timestamp = UInt32GetLE(&msg[offset + 68]);
+                    offset += lastHeaderLenght + 1;
+                }
 
                 while (timestamp > 0 && timestamp + 7*24*60*60 + BLOCK_MAX_TIME_DRIFT < ctx->earliestKeyTime) {
-                    timestamp = (++last < count) ? UInt32GetLE(&msg[off + (BLOCK_HEADER_SIZE+1)*last + 68]) : 0;
+                    timestamp = 0;
+                    if (++last < count) {
+                        lastHeaderLenght = BRMerkleBlockParseLenght(&msg[offset], msgLen);
+                        timestamp = UInt32GetLE(&msg[offset + 68]);
+                        offset += len + 1;
+                    }
                 }
                 
-                len = BRMerkleBlockParseLenght(&msg[lenght - lastLenght], msgLen);
-                BRSHA256_2(&locators[0], &msg[lenght - lastLenght], len);
+                len = BRMerkleBlockParseLenght(&msg[offset - lastHeaderLenght], msgLen);
+                BRSHA256_2(&locators[0], &msg[offset - lastHeaderLenght], len);
                 BRPeerSendGetblocks(peer, locators, 2, UINT256_ZERO);
             }
-            else */
-            //BRPeerSendGetheaders(peer, locators, 2, UINT256_ZERO);
+            else
+                BRPeerSendGetheaders(peer, locators, 2, UINT256_ZERO);
             
             size_t lenght = off;
             for (size_t i = 0; r && i < count; i++) {
