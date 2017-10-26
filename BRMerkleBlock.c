@@ -373,6 +373,9 @@ int BRMerkleBlockVerifyDifficulty(const BRMerkleBlock *block, const BRMerkleBloc
 #elif BITCOIN_VTKNTEST
     // TODO: implement testnet difficulty rule check
     return r; // don't worry about difficulty on testnet for now
+#elif BITCOIN_VTKN
+    // TODO: implement testnet difficulty rule check
+    return r; // don't worry about difficulty on testnet for now
 #endif
 
     if (r && (block->height % BLOCK_DIFFICULTY_INTERVAL) == 0) {

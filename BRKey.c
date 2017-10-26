@@ -34,6 +34,7 @@
 #define BITCOIN_PRIVKEY_TEST 239
 #define BITCOIN_PRIVKEY_REGTEST        239
 #define BITCOIN_PRIVKEY_VTKNTEST        172
+#define BITCOIN_PRIVKEY_VTKN        171
 
 #if __BIG_ENDIAN__ || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) ||\
     __ARMEB__ || __THUMBEB__ || __AARCH64EB__ || __MIPSEB__
@@ -138,6 +139,8 @@ int BRPrivKeyIsValid(const char *privKey)
         r = (data[0] == BITCOIN_PRIVKEY_REGTEST);
 #elif BITCOIN_VTKNTEST
         r = (data[0] == BITCOIN_PRIVKEY_VTKNTEST);
+#elif BITCOIN_VTKN
+        r = (data[0] == BITCOIN_PRIVKEY_VTKN);
 #else
         r = (data[0] == BITCOIN_PRIVKEY);
 #endif
@@ -184,6 +187,8 @@ int BRKeySetPrivKey(BRKey *key, const char *privKey)
     version = BITCOIN_PRIVKEY_REGTEST;
 #elif BITCOIN_VTKNTEST
     version = BITCOIN_PRIVKEY_VTKNTEST;
+#elif BITCOIN_VTKN
+    version = BITCOIN_PRIVKEY_VTKN;
 #endif
 
     assert(key != NULL);
@@ -249,6 +254,8 @@ size_t BRKeyPrivKey(const BRKey *key, char *privKey, size_t pkLen)
         data[0] = BITCOIN_PRIVKEY_REGTEST;
 #elif BITCOIN_VTKNTEST
         data[0] = BITCOIN_PRIVKEY_VTKNTEST;
+#elif BITCOIN_VTKN
+        data[0] = BITCOIN_PRIVKEY_VTKN;
 #endif
         
         UInt256Set(&data[1], key->secret);
@@ -312,6 +319,8 @@ size_t BRKeyAddress(BRKey *key, char *addr, size_t addrLen)
     data[0] = BITCOIN_PUBKEY_ADDRESS_REGTEST;
 #elif BITCOIN_VTKNTEST
     data[0] = BITCOIN_PUBKEY_ADDRESS_VTKNTEST;
+#elif BITCOIN_VTKN
+    data[0] = BITCOIN_PUBKEY_ADDRESS_VTKN;
 #endif
     UInt160Set(&data[1], hash);
 

@@ -49,6 +49,8 @@
 #define MAGIC_NUMBER 0xdab5bffa
 #elif BITCOIN_VTKNTEST
 #define MAGIC_NUMBER 0x4e030a11
+#elif BITCOIN_VTKN
+#define MAGIC_NUMBER 0x4e896e9b
 #else
 #define MAGIC_NUMBER 0xd9b4bef9
 #endif

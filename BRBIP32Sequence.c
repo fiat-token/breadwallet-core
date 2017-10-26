@@ -37,8 +37,11 @@
 #define BIP32_XPRV     "\x04\x35\x83\x94"
 #define BIP32_XPUB     "\x04\x35\x87\xCF"
 #elif BITCOIN_VTKNTEST
-#define BIP32_XPRV     "\x04\x35\x83\x94"
-#define BIP32_XPUB     "\x04\x35\x87\xCF"
+#define BIP32_XPRV     "\x04\x35\x83\x94" // {0x04, 0x35, 0x83, 0x94}
+#define BIP32_XPUB     "\x04\x35\x87\xCF" // {0x04, 0x35, 0x87, 0xCF}
+#elif BITCOIN_VTKN
+#define BIP32_XPRV     "\x04\x88\xAD\xE4" // {0x04, 0x88, 0xAD, 0xE4}
+#define BIP32_XPUB     "\x04\x88\xB2\x1E" // {0x04, 0x88, 0xB2, 0x1E}
 #else
 #define BIP32_XPRV     "\x04\x88\xAD\xE4"
 #define BIP32_XPUB     "\x04\x88\xB2\x1E"

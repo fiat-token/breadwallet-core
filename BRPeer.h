@@ -58,6 +58,8 @@ extern "C" {
 #define STANDARD_PORT 18444
 #elif BITCOIN_VTKNTEST
 #define STANDARD_PORT 9045
+#elif BITCOIN_VTKN
+#define STANDARD_PORT 9044
 #else
 #define STANDARD_PORT 8333
 #endif
