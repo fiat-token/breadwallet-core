@@ -248,9 +248,9 @@ size_t BRAddressFromScriptPubKey(char *addr, size_t addrLen, const uint8_t *scri
 #if BITCOIN_TESTNET
     data[0] = BITCOIN_PUBKEY_ADDRESS_TEST;
 #elif BITCOIN_REGTEST
-    data[0] = BITCOIN_SCRIPT_ADDRESS_REGTEST;
+    data[0] = BITCOIN_PUBKEY_ADDRESS_REGTEST;
 #elif BITCOIN_VTKNTEST
-    data[0] = BITCOIN_SCRIPT_ADDRESS_VTKNTEST;
+    data[0] = BITCOIN_PUBKEY_ADDRESS_VTKNTEST;
 #endif
     
     if (count == 5 && *elems[0] == OP_DUP && *elems[1] == OP_HASH160 && *elems[2] == 20 &&
