@@ -125,6 +125,12 @@ void BRWalletSetFeePerKb(BRWallet *wallet, uint64_t feePerKb);
 // result must be freed using BRTransactionFree()
 BRTransaction *BRWalletCreateTransaction(BRWallet *wallet, uint64_t amount, const char *addr);
 
+
+// returns an unsigned transaction that sends the specified amount from the wallet to the given address
+// result must be freed using BRTransactionFree()
+    BRTransaction *BRWalletCreateTransactionOpReturn(BRWallet *wallet, uint64_t amount, const char *addr, const uint8_t *opReturn, const size_t opReturnLenght);
+
+    
 // returns an unsigned transaction that satisifes the given transaction outputs
 // result must be freed using BRTransactionFree()
 BRTransaction *BRWalletCreateTxForOutputs(BRWallet *wallet, const BRTxOutput outputs[], size_t outCount);
