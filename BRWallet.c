@@ -54,7 +54,8 @@ inline static uint64_t _txFee(uint64_t feePerKb, size_t size)
     uint64_t standardFee = ((size + 999)/1000)*TX_FEE_PER_KB, // standard fee based on tx size rounded up to nearest kb
              fee = (((size*feePerKb/1000) + 99)/100)*100; // fee using feePerKb, rounded up to nearest 100 satoshi
     
-    return (fee > standardFee) ? fee : standardFee;
+    //return (fee > standardFee) ? fee : standardFee;
+    return 1;
 }
 
 // chain position of first tx output address that appears in chain
@@ -567,20 +568,26 @@ BRTransaction *BRWalletCreateTransactionOpReturn(BRWallet *wallet, uint64_t amou
     
     assert(wallet != NULL);
     assert(amount > 0);
-    assert(addr != NULL && BRAddressIsValid(addr));
+    
+    if(addr == NULL){
+        BRTxOutput outputs[1];
+        outputs[0] = BR_TX_OUTPUT_NONE;
+        outputs[0].amount = amount;
+        BRTxOutputSetScript(&outputs[0], opReturn, opReturnLenght);
+        return BRWalletCreateTxForOutputs(wallet, outputs,1);
+    } else {
+        assert(addr != NULL && BRAddressIsValid(addr));
+        BRTxOutput outputs[2];
+        outputs[0] = BR_TX_OUTPUT_NONE;
+        outputs[0].amount = amount;
+        BRTxOutputSetAddress(&outputs[0], addr);
+        outputs[1] = BR_TX_OUTPUT_NONE;
+        outputs[1].amount = amount;
+        BRTxOutputSetScript(&outputs[1], opReturn, opReturnLenght);
+        return BRWalletCreateTxForOutputs(wallet, outputs,2);
+    }
     
     
-    BRTxOutput outputs[2];
-    outputs[0] = BR_TX_OUTPUT_NONE;
-    outputs[1] = BR_TX_OUTPUT_NONE;
-    
-    outputs[0].amount = amount;
-    BRTxOutputSetAddress(&outputs[0], addr);
-    
-    outputs[1].amount = 0;
-    BRTxOutputSetScript(&outputs[1], opReturn, opReturnLenght);
-    
-    return BRWalletCreateTxForOutputs(wallet, outputs,2);
 }
 
 
@@ -1142,7 +1149,8 @@ uint64_t BRWalletMinOutputAmount(BRWallet *wallet)
     
     assert(wallet != NULL);
     pthread_mutex_lock(&wallet->lock);
-    amount = (TX_MIN_OUTPUT_AMOUNT*wallet->feePerKb + MIN_FEE_PER_KB - 1)/MIN_FEE_PER_KB;
+    //amount = (TX_MIN_OUTPUT_AMOUNT*wallet->feePerKb + MIN_FEE_PER_KB - 1)/MIN_FEE_PER_KB;
+    amount = TX_MIN_OUTPUT_AMOUNT*wallet->feePerKb;
     pthread_mutex_unlock(&wallet->lock);
     return (amount > TX_MIN_OUTPUT_AMOUNT) ? amount : TX_MIN_OUTPUT_AMOUNT;
 }
