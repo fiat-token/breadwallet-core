@@ -101,8 +101,11 @@ static const struct { uint32_t height; const char *hash; uint32_t timestamp; uin
 };
 
 static const char *dns_seeds[] = {
-    "test.signer1.eternitywall.com",
-    "test.signer2.eternitywall.com"
+    "relay1.eternitywall.com",
+    "relay2.eternitywall.com",
+    "relay3.eternitywall.com",
+    "relay4.eternitywall.com",
+    "relay5.eternitywall.com",
 };
 
 #else // main net
