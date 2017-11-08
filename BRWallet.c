@@ -582,7 +582,7 @@ BRTransaction *BRWalletCreateTransactionOpReturn(BRWallet *wallet, uint64_t amou
         outputs[0].amount = amount;
         BRTxOutputSetAddress(&outputs[0], addr);
         outputs[1] = BR_TX_OUTPUT_NONE;
-        outputs[1].amount = amount;
+        outputs[1].amount = 0;
         BRTxOutputSetScript(&outputs[1], opReturn, opReturnLenght);
         return BRWalletCreateTxForOutputs(wallet, outputs,2);
     }
