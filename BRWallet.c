@@ -55,7 +55,8 @@ inline static uint64_t _txFee(uint64_t feePerKb, size_t size)
              fee = (((size*feePerKb/1000) + 99)/100)*100; // fee using feePerKb, rounded up to nearest 100 satoshi
     
     //return (fee > standardFee) ? fee : standardFee;
-    return 1;
+    // zero fee
+    return 0;
 }
 
 // chain position of first tx output address that appears in chain
