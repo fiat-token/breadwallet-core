@@ -53,8 +53,8 @@ extern "C" {
 #define BITCOIN_SCRIPT_ADDRESS_REGTEST 196
 #define BITCOIN_PUBKEY_ADDRESS_VTKN 70 // start with V
 #define BITCOIN_SCRIPT_ADDRESS_VTKN 63 // start with S
-#define BITCOIN_PUBKEY_ADDRESS_VTKNTEST 65 // start with T
-#define BITCOIN_SCRIPT_ADDRESS_VTKNTEST 58 // start with Q
+#define BITCOIN_PUBKEY_ADDRESS_VTKNTEST 111 // start with 'm' or 'n'
+#define BITCOIN_SCRIPT_ADDRESS_VTKNTEST 196 // start with 2
 
 // bitcoin script opcodes: https://en.bitcoin.it/wiki/Script#Constants
 #define OP_0           0x00
