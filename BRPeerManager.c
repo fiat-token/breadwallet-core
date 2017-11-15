@@ -86,7 +86,7 @@ static const char *dns_seeds[] = {
 #elif BITCOIN_VTKNTEST
 
 static const struct { uint32_t height; const char *hash; uint32_t timestamp; uint32_t target; } checkpoint_array[] = {
-    {      0, "aea71fb4640317ffd6a442764784ba4b94cea7eb48ba5285a85e2dca49a0a483", 1504224000L, 0x207fffff }
+    {      0, "fecda7660014b377f1043fdbe176431cd110242c59d273c5a815466dda41344d", 1510768800L, 0x207fffff }
     };
 
 static const char *dns_seeds[] = {
