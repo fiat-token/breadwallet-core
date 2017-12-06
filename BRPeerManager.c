@@ -1281,7 +1281,8 @@ static void _peerRelayedBlock(void *info, BRMerkleBlock *block)
     prev = BRSetGet(manager->blocks, &block->prevBlock);
 
     if (prev) {
-        txTime = block->timestamp/2 + prev->timestamp/2;
+        //txTime = block->timestamp/2 + prev->timestamp/2;
+        txTime = block->timestamp;
         block->height = prev->height + 1;
     }
     
@@ -1443,7 +1444,7 @@ static void _peerRelayedBlock(void *info, BRMerkleBlock *block)
                 
                 count = BRMerkleBlockTxHashes(b, txHashes, count);
                 b = BRSetGet(manager->blocks, &b->prevBlock);
-                if (b) timestamp = timestamp/2 + b->timestamp/2;
+                //if (b) timestamp = timestamp/2 + b->timestamp/2;
                 if (count > 0) BRWalletUpdateTransactions(manager->wallet, txHashes, count, height, timestamp);
             }
         
